@@ -24,7 +24,7 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 public abstract class TitleScreenMixin {
     @Inject(method={"method_1507"}, at={@At(value="HEAD")}, cancellable=true)
     private void orange$guardScreen(class_437 screen, CallbackInfo callback) {
-        if (GuiAccess.isOwned(screen) && !GuiAccess.allowOwnedScreen((class_310)this)) {
+        if (GuiAccess.isOwned(screen) && !GuiAccess.allowOwnedScreen((class_310)(Object)this)) {
             callback.cancel();
         }
     }
