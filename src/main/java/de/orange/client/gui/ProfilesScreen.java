@@ -96,8 +96,8 @@ extends GlassScreen {
         this.importPath.method_1852(p);
         this.importPath.method_1868(-986895);
         this.importPath.method_47404((class_2561)class_2561.method_43470((String)"Pfad zur .orange-profile.json"));
-        this.method_25429(this.name);
-        this.method_25429(this.importPath);
+        this.method_25429((class_364)this.name);
+        this.method_25429((class_364)this.importPath);
         this.contentScroll = Math.clamp((long)this.contentScroll, 0, this.maxContentScroll());
         this.listScroll = Math.clamp((long)this.listScroll, 0, this.maxListScroll());
         if (!this.profiles.warnings().isEmpty() && this.status.startsWith("Profile speichern")) {

@@ -66,7 +66,7 @@ extends OrangeSubScreen {
             this.query = value;
             this.scroll = 0;
         });
-        this.method_37063(this.search);
+        this.method_37063((class_364)this.search);
     }
 
     private List<ClientModule> entries() {

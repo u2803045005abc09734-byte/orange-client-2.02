@@ -31,13 +31,13 @@ public abstract class TitleScreenMixin {
 
     @Inject(method={"method_18096(Lnet/minecraft/class_437;ZZ)V"}, at={@At(value="HEAD")})
     private void orange$disconnect(class_437 screen, boolean transferring, boolean clearResources, CallbackInfo callback) {
-        GuiAccess.beginDisconnect((class_310)this);
+        GuiAccess.beginDisconnect((class_310)(Object)this);
         PackImageCache.closeShared();
     }
 
     @Inject(method={"method_24288"}, at={@At(value="TAIL")})
     private void orange$windowTitle(CallbackInfo callback) {
-        ((class_310)this).method_22683().method_24286("Orange Client");
+        ((class_310)(Object)this).method_22683().method_24286("Orange Client");
     }
 }
 

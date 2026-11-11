@@ -80,7 +80,7 @@ public final class HitboxRenderer {
             shapes.add(class_259.method_1078((class_238)box));
         }
         if (!shapes.isEmpty()) {
-            state.setData(FRAME, new Frame(List.copyOf(shapes), config.visuals.hitboxColor, Math.clamp(config.visuals.hitboxWidth, 0.5f, 4.0f)));
+            state.setData(FRAME, (Object)new Frame(List.copyOf(shapes), config.visuals.hitboxColor, Math.clamp(config.visuals.hitboxWidth, 0.5f, 4.0f)));
         }
     }
 

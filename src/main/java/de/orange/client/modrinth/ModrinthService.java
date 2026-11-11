@@ -324,7 +324,7 @@ implements AutoCloseable {
             this.requireManifestWritable();
         }
         JsonObject chosenVersion = null;
-        JsonObject chosen = null;
+        Object chosen = null;
         if (!requestedVersion.isBlank()) {
             ModrinthService.requireId(requestedVersion);
             versions = new JsonArray();
@@ -336,14 +336,14 @@ implements AutoCloseable {
             JsonObject version = element.getAsJsonObject();
             if (!ModrinthService.strings(version, "game_versions").contains(GAME_VERSION) || !project.id().equals(ModrinthService.string(version, "project_id"))) continue;
             for (JsonElement fileElement : version.getAsJsonArray("files")) {
-                JsonObject candidate = fileElement.getAsJsonObject();
-                if (!ModrinthService.string(candidate, "filename").toLowerCase(Locale.ROOT).endsWith(".zip")) continue;
+                file = fileElement.getAsJsonObject();
+                if (!ModrinthService.string(file, "filename").toLowerCase(Locale.ROOT).endsWith(".zip")) continue;
                 if (chosen == null) {
-                    chosen = candidate;
+                    chosen = file;
                     chosenVersion = version;
                 }
-                if (!candidate.has("primary") || !candidate.get("primary").getAsBoolean()) continue;
-                chosen = candidate;
+                if (!file.has("primary") || !file.get("primary").getAsBoolean()) continue;
+                chosen = file;
                 chosenVersion = version;
                 break;
             }
@@ -607,23 +607,20 @@ implements AutoCloseable {
     }
 
     private void trimImageDisk() {
-        try (Stream<Path> files = Files.list(this.imageDirectory)) {
-            List<Path> list = files
-                .filter(path -> path.getFileName().toString().endsWith(".img"))
-                .sorted(Comparator.comparingLong(path -> path.toFile().lastModified()))
-                .toList();
+        try (Stream<Path> files = Files.list(this.imageDirectory);){
+            Path p22;
+            List<Path> list = files.filter(p -> p.getFileName().toString().endsWith(".img")).sorted(Comparator.comparingLong(p -> p.toFile().lastModified())).toList();
             long bytes = 0L;
-            for (Path path : list) {
-                bytes += Files.size(path);
+            for (Path p22 : list) {
+                bytes += Files.size(p22);
             }
-            for (int i = 0; i < list.size() && (bytes > 0x4000000L || list.size() - i > 256); i++) {
-                Path oldest = list.get(i);
-                long size = Files.size(oldest);
-                Files.deleteIfExists(oldest);
-                bytes -= size;
+            for (int i = 0; i < list.size() && (bytes > 0x4000000L || list.size() - i > 256); bytes -= Files.size(p22), ++i) {
+                p22 = list.get(i);
+                Files.deleteIfExists(p22);
             }
-        } catch (IOException ex) {
-            LoggerFactory.getLogger("Orange").debug("Vorschaubild-Cache konnte nicht bereinigt werden.", ex);
+        }
+        catch (IOException ex) {
+            LoggerFactory.getLogger((String)"Orange").debug("Vorschaubild-Cache konnte nicht bereinigt werden.");
         }
     }
 
@@ -724,14 +721,16 @@ implements AutoCloseable {
             if (result == null) {
                 throw new IOException("Modrinth liefert eine leere Antwort.");
             }
-            synchronized (this) {
+            ModrinthService modrinthService3 = this;
+            synchronized (modrinthService3) {
                 String oldest;
                 this.apiCache.put(endpoint, new CachedJson(result, System.currentTimeMillis() + 45000L, bytes.length));
-                for (long cacheBytes = this.apiCache.values().stream().mapToLong(CachedJson::bytes).sum(); this.apiCache.size() > 24 || cacheBytes > 0x1000000L; cacheBytes -= this.apiCache.remove(oldest).bytes()) {
+                for (long cacheBytes = this.apiCache.values().stream().mapToLong(CachedJson::bytes).sum(); this.apiCache.size() > 24 || cacheBytes > 0x1000000L; cacheBytes -= (long)this.apiCache.remove(oldest).bytes()) {
                     oldest = this.apiCache.keySet().iterator().next();
                 }
             }
-            return result;
+            modrinthService3 = result;
+            return modrinthService3;
         }
     }
 
@@ -744,7 +743,7 @@ implements AutoCloseable {
                 // empty catch block
             }
         }, 60L, TimeUnit.SECONDS);
-        return new FilterInputStream(body){
+        return new FilterInputStream(this, body){
 
             @Override
             public void close() throws IOException {

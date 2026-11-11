@@ -120,10 +120,7 @@ public final class ProfileManager {
     }
 
     public List<String> list() {
-        return this.names.values().stream()
-            .sorted(Comparator.<String, Boolean>comparing(name -> !name.equals("Default"))
-                .thenComparing(Comparator.naturalOrder()))
-            .toList();
+        return this.names.values().stream().sorted(Comparator.comparing(n -> !n.equals("Default")).thenComparing(String.CASE_INSENSITIVE_ORDER)).toList();
     }
 
     public synchronized void save() throws IOException {

@@ -88,8 +88,8 @@ public final class ColorPickerComponent {
     }
 
     public static int fromHsv(float hue, float saturation, float value) {
-        float g;
-        float r;
+        float r = 0.0f;
+        float g = 0.0f;
         float h = ColorPickerComponent.unit(hue) * 6.0f;
         float s = ColorPickerComponent.unit(saturation);
         float v = ColorPickerComponent.unit(value);

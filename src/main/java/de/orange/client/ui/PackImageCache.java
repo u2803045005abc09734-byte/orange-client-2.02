@@ -119,10 +119,7 @@ implements AutoCloseable {
         Entry fresh = new Entry();
         this.entries.put(url, fresh);
         this.trim();
-        CompletableFuture<BufferedImage> decoded = OrangeClient.instance().packs()
-            .image(url)
-            .thenApplyAsync(PackImageCache::decode, this.decoder);
-        decoded.whenComplete((image, failure) -> class_310.method_1551().execute(() -> {
+        ((CompletableFuture)OrangeClient.instance().packs().image(url).thenApplyAsync(PackImageCache::decode, (Executor)this.decoder)).whenComplete((image, failure) -> class_310.method_1551().execute(() -> {
             if (this.closed || this.entries.get(url) != fresh) {
                 return;
             }

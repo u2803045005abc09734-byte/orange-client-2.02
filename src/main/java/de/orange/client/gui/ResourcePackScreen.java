@@ -107,7 +107,7 @@ extends GlassScreen {
             this.query = text;
             this.deadline = System.nanoTime() + 350000000L;
         });
-        this.method_37063(this.search);
+        this.method_37063((class_364)this.search);
         this.scroll = Math.clamp((long)this.scroll, 0, this.maxScroll());
         if (this.first) {
             this.first = false;
