@@ -177,9 +177,10 @@ public final class HudRenderer {
                     this.samples = new class_1799[]{new class_1799((class_1935)class_1802.field_8805), new class_1799((class_1935)class_1802.field_8058), new class_1799((class_1935)class_1802.field_8348), new class_1799((class_1935)class_1802.field_8285)};
                 }
                 for (int i = 0; i < SLOTS.length; ++i) {
-                    class_1799 item;
                     int y = 25 + i * 20;
-                    class_1799 class_17992 = mc.field_1724 != null ? mc.field_1724.method_6118(SLOTS[i]) : (item = preview ? this.samples[i] : class_1799.field_8037);
+                    class_1799 item = mc.field_1724 != null
+                        ? mc.field_1724.method_6118(SLOTS[i])
+                        : (preview ? this.samples[i] : class_1799.field_8037);
                     if (item.method_7960()) {
                         Glass.text(c, SLOT_NAMES[i], 13, y + 3, -6184277);
                         Glass.text(c, "\u2014", rawW - 19, y + 3, -6184277);
