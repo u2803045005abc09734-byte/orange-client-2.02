@@ -36,12 +36,16 @@ public abstract class ClientFontSamplingMixin {
 
     @ModifyArg(method={"comp_4056"}, at=@At(value="INVOKE", target="Lnet/minecraft/class_12136;method_75294(Lcom/mojang/blaze3d/textures/FilterMode;)Lnet/minecraft/class_12137;"), index=0)
     private FilterMode orange$smoothClientFonts(FilterMode original) {
-        class_11719.class_11721 font;
-        class_2960 id;
-        class_12236 glyph;
-        class_11767 class_117672 = this.comp_4637;
-        if (class_117672 instanceof class_12236 && (class_117672 = (glyph = (class_12236)class_117672).comp_3317().method_27708()) instanceof class_11719.class_11721 && (id = (font = (class_11719.class_11721)class_117672).comp_4590()).method_12836().equals("orange") && (id.method_12832().equals("ui") || id.method_12832().equals("ui_bold"))) {
-            return FilterMode.LINEAR;
+        class_11767 source = this.comp_4637;
+        if (source instanceof class_12236 glyph) {
+            class_11719 glyphSource = glyph.comp_3317().method_27708();
+            if (glyphSource instanceof class_11719.class_11721 font) {
+                class_2960 id = font.comp_4590();
+                if (id.method_12836().equals("orange")
+                    && (id.method_12832().equals("ui") || id.method_12832().equals("ui_bold"))) {
+                    return FilterMode.LINEAR;
+                }
+            }
         }
         return original;
     }

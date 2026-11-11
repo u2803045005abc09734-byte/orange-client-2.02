@@ -65,7 +65,7 @@ extends OrangeSubScreen {
         this.field.method_1880(100);
         this.field.method_1852(this.query);
         this.field.method_1863(this::changed);
-        this.method_37063((class_364)this.field);
+        this.method_37063(this.field);
         this.method_48265((class_364)this.field);
         this.rebuild();
         if (!this.query.isBlank()) {
