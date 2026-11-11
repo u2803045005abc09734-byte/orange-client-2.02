@@ -1,0 +1,50 @@
+{
+  "schemaVersion": 1,
+  "id": "orange",
+  "version": "1.1.1",
+  "name": "Orange Client",
+  "description": "Ein eigenständiger Fabric-Client mit Glass-Oberfläche, HUD-Editor, Profilen und visuellem Modrinth Resource-Pack-Browser. Verfeinerte, weich gerundete ClickGUI-Schalter.",
+  "authors": [
+    "Orange Client contributors"
+  ],
+  "license": "MIT",
+  "icon": "assets/orange/icon.png",
+  "environment": "client",
+  "entrypoints": {
+    "client": [
+      "de.orange.client.OrangeClient"
+    ]
+  },
+  "mixins": [
+    "orange.mixins.json"
+  ],
+  "depends": {
+    "fabricloader": ">=0.18.4",
+    "minecraft": "1.21.11",
+    "java": ">=21",
+    "fabric-api": ">=0.141.6"
+  },
+  "suggests": {
+    "modmenu": "*"
+  },
+  "jars": [
+    {
+      "file": "META-INF/jars/common-image-3.12.0.jar"
+    },
+    {
+      "file": "META-INF/jars/common-io-3.12.0.jar"
+    },
+    {
+      "file": "META-INF/jars/common-lang-3.12.0.jar"
+    },
+    {
+      "file": "META-INF/jars/imageio-core-3.12.0.jar"
+    },
+    {
+      "file": "META-INF/jars/imageio-metadata-3.12.0.jar"
+    },
+    {
+      "file": "META-INF/jars/imageio-webp-3.12.0.jar"
+    }
+  ]
+}

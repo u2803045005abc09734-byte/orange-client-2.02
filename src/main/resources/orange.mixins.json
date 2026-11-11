@@ -1,0 +1,7 @@
+{
+  "required": true,
+  "package": "de.orange.client.mixin",
+  "compatibilityLevel": "JAVA_21",
+  "client": ["FreelookMouseMixin", "FreelookCameraMixin", "CrosshairMixin", "TitleScreenMixin", "GuiKeyboardMixin", "TextFieldSelectionAccessor", "EntityOutlineMixin", "FullbrightMixin", "AmbienceMixin", "PlayerNametagsMixin", "ClientFontSamplingMixin"],
+  "injectors": { "defaultRequire": 1 }
+}
