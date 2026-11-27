@@ -68,7 +68,18 @@ def resolve_version(slug, requested):
     # Fetch the recent version list without the game-version filter: some
     # Modrinth releases have compatibility metadata split across loaders/
     # game_versions and can be missed by the filtered endpoint.
-    versions = get_json(f"https://api.modrinth.com/v2/project/{slug}/version?limit=100")
+    versions = []
+    # Walk pages because projects such as OneConfig have many historical
+    # Minecraft versions and the requested release may be beyond page 1.
+    for offset in range(0, 1000, 100):
+        page = get_json(f"https://api.modrinth.com/v2/project/{slug}/version?limit=100&offset={offset}")
+        if not page:
+            break
+        versions.extend(page)
+        if requested and any(v.get("version_number") == requested for v in page):
+            break
+        if len(page) < 100:
+            break
     releases = [v for v in versions if v.get("version_type") == "release"]
     pool = releases or versions
     if requested:
