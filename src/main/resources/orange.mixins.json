@@ -2,6 +2,23 @@
   "required": true,
   "package": "de.orange.client.mixin",
   "compatibilityLevel": "JAVA_21",
-  "client": ["FreelookMouseMixin", "FreelookCameraMixin", "CrosshairMixin", "TitleScreenMixin", "GuiKeyboardMixin", "TextFieldSelectionAccessor", "EntityOutlineMixin", "FullbrightMixin", "AmbienceMixin", "PlayerNametagsMixin", "PlayerListHudMixin", "PlayerEntityRendererMixin", "ClientFontSamplingMixin"],
-  "injectors": { "defaultRequire": 1 }
+  "client": [
+    "FreelookMouseMixin",
+    "FreelookCameraMixin",
+    "CrosshairMixin",
+    "TitleScreenMixin",
+    "GuiKeyboardMixin",
+    "TextFieldSelectionAccessor",
+    "EntityOutlineMixin",
+    "FullbrightMixin",
+    "AmbienceMixin",
+    "PlayerNametagsMixin",
+    "PlayerListHudMixin",
+    "PlayerEntityRendererMixin",
+    "ClientFontSamplingMixin",
+    "OneConfigLegacyKeybindMixin"
+  ],
+  "injectors": {
+    "defaultRequire": 1
+  }
 }
