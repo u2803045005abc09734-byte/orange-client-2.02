@@ -31,10 +31,10 @@ public record GuiLayout(Rect window, Rect header, Rect navigation, Rect content)
     }
 
     public Rect headerIcon(int index) {
-        if (index < 0 || index >= 5) {
+        if (index < 0 || index >= 4) {
             throw new IndexOutOfBoundsException(index);
         }
-        return new Rect(this.window.right() - 14 - (5 - index) * 18 - (4 - index) * 5, this.window.y() + 14, 18, 18);
+        return new Rect(this.window.right() - 14 - (4 - index) * 18 - (3 - index) * 5, this.window.y() + 14, 18, 18);
     }
 
     public boolean compact() {
