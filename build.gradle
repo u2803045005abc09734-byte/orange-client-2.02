@@ -36,11 +36,14 @@ tasks.withType(JavaCompile).configureEach {
 tasks.register('decodeOrangeBadge') {
     def encodedBadge = file('src/main/resources/assets/orange/orange_badge.png.b64')
     def outputBadge = file('src/main/resources/assets/orange/orange_badge.png')
+    def modMenuIcon = file('src/main/resources/assets/orange/icon.png')
     inputs.file(encodedBadge)
-    outputs.file(outputBadge)
+    outputs.files(outputBadge, modMenuIcon)
     doLast {
         def encoded = encodedBadge.getText('US-ASCII').replaceAll('\\s', '')
-        outputBadge.bytes = java.util.Base64.getDecoder().decode(encoded)
+        def pngBytes = java.util.Base64.getDecoder().decode(encoded)
+        outputBadge.bytes = pngBytes
+        modMenuIcon.bytes = pngBytes
     }
 }
 
