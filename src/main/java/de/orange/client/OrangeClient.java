@@ -19,6 +19,7 @@
  */
 package de.orange.client;
 
+import de.orange.client.capes.CapeService;
 import de.orange.client.config.ClientConfig;
 import de.orange.client.config.ProfileManager;
 import de.orange.client.hud.HudRenderer;
@@ -76,6 +77,7 @@ implements ClientModInitializer {
             Glass.theme(this.config().accent, this.config().uiOpacity);
             FreelookController.tick(client);
             GuiAccess.tick(client);
+            CapeService.tickPresence(client);
         });
         HudElementRegistry.attachElementBefore((class_2960)VanillaHudElements.CHAT, (class_2960)class_2960.method_60655((String)"orange", (String)"hud"), (context, ticks) -> {
             Glass.theme(this.config().accent, this.config().uiOpacity);
