@@ -43,6 +43,7 @@ MODS = {
 # Required libraries for the supplied set.
 VERSION_IDS = {
     "oneconfig": "u0Ap01Nd",
+    "chattweaks": "360hYztL",
 }
 
 EXACT_SHA1 = {
@@ -131,7 +132,9 @@ def resolve_version(slug, requested):
     return pool[0]
 
 def modrinth_file(slug, requested):
-    if slug in EXACT_SHA1:
+    if slug in VERSION_IDS:
+        version = get_json(f"https://api.modrinth.com/v2/project/{slug}/version/{VERSION_IDS[slug]}")
+    elif slug in EXACT_SHA1:
         version = get_json(f"https://api.modrinth.com/v2/version_file/{EXACT_SHA1[slug]}")
     else:
         version = resolve_version(slug, requested)
