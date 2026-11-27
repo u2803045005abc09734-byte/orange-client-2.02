@@ -404,7 +404,34 @@ public final class CapeService {
         String method,
         String contentType,
         byte[] body
-    ) throws IOException, InterruptedException {
+    ) throws Exception {
+        HttpResponse<String> response = send(buildAuthorizedRequest(token, path, method, contentType, body));
+        if (response.statusCode() != 401) {
+            return response;
+        }
+
+        // Orange bearer sessions expire. Re-exchange the live Minecraft token once,
+        // keeping the Minecraft token in memory only for this HTTPS request.
+        synchronized (CapeService.class) {
+            if (token.equals(orangeAccessToken)) {
+                orangeAccessToken = null;
+                tokenForMinecraftUuid = null;
+            }
+        }
+        String refreshedToken = ensureCurrentSession();
+        if (refreshedToken.equals(token)) {
+            return response;
+        }
+        return send(buildAuthorizedRequest(refreshedToken, path, method, contentType, body));
+    }
+
+    private static HttpRequest buildAuthorizedRequest(
+        String token,
+        String path,
+        String method,
+        String contentType,
+        byte[] body
+    ) {
         HttpRequest.Builder builder = HttpRequest.newBuilder(URI.create(API + path))
             .timeout(REQUEST_TIMEOUT)
             .header("Authorization", "Bearer " + token);
@@ -417,8 +444,7 @@ public final class CapeService {
             ? HttpRequest.BodyPublishers.noBody()
             : HttpRequest.BodyPublishers.ofByteArray(body);
 
-        builder.method(method, publisher);
-        return send(builder.build());
+        return builder.method(method, publisher).build();
     }
 
     private static HttpResponse<String> send(HttpRequest request) throws IOException, InterruptedException {
