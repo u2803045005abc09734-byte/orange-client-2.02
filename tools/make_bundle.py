@@ -41,6 +41,10 @@ MODS = {
 }
 
 # Required libraries for the supplied set.
+VERSION_IDS = {
+    "oneconfig": "u0Ap01Nd",
+}
+
 LIBS = {
     "polycompose": ("3.0.7", "mods/polycompose.jar", "PolyCompose"),
     "fabric-language-kotlin": (None, "mods/fabric-language-kotlin.jar", "Fabric Language Kotlin"),
