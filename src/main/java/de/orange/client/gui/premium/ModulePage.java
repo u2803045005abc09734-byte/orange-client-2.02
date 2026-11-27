@@ -55,7 +55,6 @@ implements GuiPage {
     private final Anim generalArrow = new Anim(1.0f);
     private final ToggleComponent reducedMotion;
     private final ToggleComponent blur;
-    private final SliderComponent globalScale;
     private final SliderComponent opacity;
     private final ColorPickerComponent guiColour;
     private final ColorPickerComponent hudColour;
@@ -85,9 +84,6 @@ implements GuiPage {
         });
         this.blur = this.toggle(() -> ModulePage.config().blur, value -> {
             ModulePage.config().blur = value;
-        });
-        this.globalScale = this.slider(0.5, 2.0, () -> ModulePage.config().hudScale, value -> {
-            ModulePage.config().hudScale = (float)value;
         });
         this.opacity = this.slider(0.25, 0.95, () -> ModulePage.config().uiOpacity, value -> {
             ModulePage.config().uiOpacity = (float)value;
@@ -187,7 +183,7 @@ implements GuiPage {
 
     private int renderGeneral(class_332 c, Rect header, GuiFrame frame, PopupManager popups) {
         this.sectionHeader(c, header, "Client settings", this.general, this.generalArrow, frame);
-        int fullHeight = 170;
+        int fullHeight = 143;
         int shown = Math.round(this.general.height(fullHeight, frame));
         Rect full = new Rect(header.x() + 5, header.bottom() + 3, header.w() - 10, fullHeight);
         Rect visible = this.general.visibleBounds(full);
@@ -197,7 +193,6 @@ implements GuiPage {
             this.settingToggle(c, new Rect(full.x() + 6, y, full.w() - 12, 27), "Reduce animations", this.reducedMotion, visible, frame);
             this.settingToggle(c, new Rect(full.x() + 6, y += 27, full.w() - 12, 27), "Background blur", this.blur, visible, frame);
             this.settingSlider(c, new Rect(full.x() + 6, y += 27, full.w() - 12, 27), "Glass opacity", this.opacity, visible, frame);
-            this.settingSlider(c, new Rect(full.x() + 6, y += 27, full.w() - 12, 27), "Global HUD scale", this.globalScale, visible, frame);
             this.settingColour(c, new Rect(full.x() + 6, y += 27, full.w() - 12, 27), "Interface accent", this.guiColour, visible, frame, popups);
             this.settingColour(c, new Rect(full.x() + 6, y += 27, full.w() - 12, 27), "HUD & crosshair accent", this.hudColour, visible, frame, popups);
             c.method_44380();
@@ -430,16 +425,13 @@ implements GuiPage {
         private final ClientModule module;
         private final ToggleComponent enabled;
         private final ExpandableSection expanded;
-        private final SliderComponent scale;
-        private final SliderComponent opacity;
-        private final ColorPickerComponent textColour;
         private final Anim arrowMotion = new Anim();
         private final Anim hoverMotion = new Anim();
         private final boolean hasSettings;
 
         private ModuleRow(ClientModule module) {
             this.module = module;
-            this.hasSettings = module.hud() || module.id().equals("freelook");
+            this.hasSettings = !module.hud() && module.id().equals("freelook");
             this.enabled = new ToggleComponent(module::enabled, value -> {
                 module.setEnabled((boolean)value);
                 ModulePage.this.save();
@@ -448,16 +440,6 @@ implements GuiPage {
             this.expanded = new ExpandableSection(key, () -> ModulePage.config().expanded(key, false), value -> {
                 ModulePage.config().setExpanded(key, (boolean)value);
                 ModulePage.this.save();
-            });
-            this.scale = ModulePage.this.slider(0.5, 3.0, () -> ModulePage.config().module((String)module.id()).scale, value -> {
-                ModulePage.config().module((String)module.id()).scale = (float)value;
-            });
-            this.opacity = ModulePage.this.slider(0.1, 1.0, () -> ModulePage.config().module((String)module.id()).opacity, value -> {
-                ModulePage.config().module((String)module.id()).opacity = (float)value;
-            });
-            this.textColour = new ColorPickerComponent(() -> ModulePage.config().module((String)module.id()).color, value -> {
-                ModulePage.config().module((String)module.id()).color = value;
-                ModulePage.this.changed();
             });
         }
 
@@ -484,24 +466,16 @@ implements GuiPage {
                 this.expanded.toggle();
                 return true;
             });
-            int fullHeight = this.module.hud() ? 100 : 66;
+            int fullHeight = 66;
             int shown = Math.round(this.expanded.height(fullHeight, frame));
             Rect full = new Rect(header.x() + 5, header.bottom(), header.w() - 10, fullHeight);
             Rect visible = this.expanded.visibleBounds(full);
             if (shown > 0) {
                 c.method_44379(visible.x(), visible.y(), visible.right(), visible.bottom());
                 int y = full.y() + 2;
-                if (this.module.hud()) {
-                    ModulePage.this.settingSlider(c, new Rect(full.x() + 6, y, full.w() - 12, 27), "Element scale", this.scale, visible, frame);
-                    ModulePage.this.settingSlider(c, new Rect(full.x() + 6, y += 27, full.w() - 12, 27), "Opacity", this.opacity, visible, frame);
-                    ModulePage.this.settingColour(c, new Rect(full.x() + 6, y += 27, full.w() - 12, 27), "Text colour", this.textColour, visible, frame, popups);
-                    ClientConfig.ModuleState state = ModulePage.config().module(this.module.id());
-                    GuiText.small(c, "X: " + state.x + "   Y: " + state.y, full.x() + 6, (y += 27) + 8, ModulePage.color(-5920585, frame));
-                } else {
-                    GuiText.small(c, GuiText.trim(this.module.description(), full.w() - 12, 8.5f), full.x() + 6, y + 5, ModulePage.color(-5920585, frame));
-                    GuiText.small(c, "Set your hold key in Minecraft controls.", full.x() + 6, y + 21, ModulePage.color(-5920585, frame));
-                    ModulePage.this.button(c, new Rect(full.x() + 6, y + 36, Math.min(135, full.w() - 12), 23), "Configure keybind", ModulePage.this::openControls, visible, frame);
-                }
+                GuiText.small(c, GuiText.trim(this.module.description(), full.w() - 12, 8.5f), full.x() + 6, y + 5, ModulePage.color(-5920585, frame));
+                GuiText.small(c, "Set your hold key in Minecraft controls.", full.x() + 6, y + 21, ModulePage.color(-5920585, frame));
+                ModulePage.this.button(c, new Rect(full.x() + 6, y + 36, Math.min(135, full.w() - 12), 23), "Configure keybind", ModulePage.this::openControls, visible, frame);
                 c.method_44380();
             }
             return header.bottom() + shown;
