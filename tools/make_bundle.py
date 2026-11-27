@@ -24,6 +24,12 @@ MODRINTH_MODS = {
     "sodium": (False, "mods/sodium.jar"),
     "lithium": (False, "mods/lithium.jar"),
     "ferrite-core": (False, "mods/ferrite-core.jar"),
+    # Open-source extras also found in other clients' bundles. All optional: a mod without a
+    # release for this Minecraft version is skipped instead of failing the build.
+    "modmenu": (False, "mods/modmenu.jar"),
+    "simple-voice-chat": (False, "mods/simple-voice-chat.jar"),
+    "skinlayers3d": (False, "mods/skinlayers3d.jar"),
+    "lambdynamiclights": (False, "mods/lambdynamiclights.jar"),
 }
 
 
