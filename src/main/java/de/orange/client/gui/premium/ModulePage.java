@@ -11,7 +11,7 @@ package de.orange.client.gui.premium;
 
 import de.orange.client.OrangeClient;
 import de.orange.client.config.ClientConfig;
-import de.orange.client.gui.EmptyScreen;
+import de.orange.client.gui.CapeEditorScreen;
 import de.orange.client.gui.ProfilesScreen;
 import de.orange.client.gui.ResourcePackScreen;
 import de.orange.client.gui.SearchScreen;
@@ -213,8 +213,8 @@ implements GuiPage {
         boolean columns = w >= 360;
         int gap = 7;
         int bw = columns ? (w - 20 - gap) / 2 : w - 20;
-        String[] titles = new String[]{"Resource packs", "Profiles", "Global search", "Social", "Optimizer", "Minecraft controls"};
-        Runnable[] actions = new Runnable[]{() -> this.open(new ResourcePackScreen(this.parent)), () -> this.open(new ProfilesScreen(this.parent)), () -> this.open(new SearchScreen(this.parent)), () -> this.open(new EmptyScreen(this.parent, "social")), () -> popups.open(this, new OptimizerInfoPopup(this.viewport, popups)), this::openControls};
+        String[] titles = new String[]{"Resource packs", "Capes", "Profiles", "Global search", "Optimizer", "Minecraft controls"};
+        Runnable[] actions = new Runnable[]{() -> this.open(new ResourcePackScreen(this.parent)), () -> this.open(new CapeEditorScreen(this.parent)), () -> this.open(new ProfilesScreen(this.parent)), () -> this.open(new SearchScreen(this.parent)), () -> popups.open(this, new OptimizerInfoPopup(this.viewport, popups)), this::openControls};
         for (int i = 0; i < titles.length; ++i) {
             int row = columns ? i / 2 : i;
             int column = columns ? i % 2 : 0;
@@ -486,7 +486,7 @@ implements GuiPage {
                 this.expanded.toggle();
                 return true;
             });
-            int fullHeight = this.module.hud() ? 122 : 66;
+            int fullHeight = this.module.hud() ? 100 : 66;
             int shown = Math.round(this.expanded.height(fullHeight, frame));
             Rect full = new Rect(header.x() + 5, header.bottom(), header.w() - 10, fullHeight);
             Rect visible = this.expanded.visibleBounds(full);
@@ -499,8 +499,6 @@ implements GuiPage {
                     ModulePage.this.settingColour(c, new Rect(full.x() + 6, y += 27, full.w() - 12, 27), "Text colour", this.textColour, visible, frame, popups);
                     ClientConfig.ModuleState state = ModulePage.config().module(this.module.id());
                     GuiText.small(c, "X: " + state.x + "   Y: " + state.y, full.x() + 6, (y += 27) + 8, ModulePage.color(-5920585, frame));
-                    Rect edit = new Rect(full.right() - 110, y + 1, 104, 23);
-                    ModulePage.this.button(c, edit, "Edit position", () -> ModulePage.this.open(new HudEditorScreen(ModulePage.this.parent, this.module.id())), visible, frame);
                 } else {
                     GuiText.small(c, GuiText.trim(this.module.description(), full.w() - 12, 8.5f), full.x() + 6, y + 5, ModulePage.color(-5920585, frame));
                     GuiText.small(c, "Set your hold key in Minecraft controls.", full.x() + 6, y + 21, ModulePage.color(-5920585, frame));
