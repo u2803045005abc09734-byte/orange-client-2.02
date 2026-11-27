@@ -333,18 +333,13 @@ public final class Glass {
                 Glass.line(c, cx + s - 1, cy - 2, cx + 1, cy - 2, t, color);
                 break;
             }
-            case "wardrobe": {
-                Glass.line(c, x, y + 4, cx - s / 3, y, t, color);
-                Glass.line(c, cx - s / 3, y, cx, y + 3, t, color);
-                Glass.line(c, cx, y + 3, cx + s / 3, y, t, color);
-                Glass.line(c, cx + s / 3, y, cx + s, y + 4, t, color);
-                Glass.line(c, x, y + 4, x + 2, cy, t, color);
-                Glass.line(c, x + 2, cy, cx - s / 2, cy - 1, t, color);
-                Glass.line(c, cx - s / 2, cy - 1, cx - s / 2, cy + s, t, color);
-                Glass.line(c, cx - s / 2, cy + s, cx + s / 2, cy + s, t, color);
-                Glass.line(c, cx + s / 2, cy + s, cx + s / 2, cy - 1, t, color);
-                Glass.line(c, cx + s / 2, cy - 1, cx + s - 2, cy, t, color);
-                Glass.line(c, cx + s - 2, cy, cx + s, y + 4, t, color);
+            case "cape": {
+                Glass.line(c, x + 2, y + 2, cx, y + 5, t, color);
+                Glass.line(c, cx, y + 5, cx + s - 2, y + 2, t, color);
+                Glass.line(c, x + 2, y + 2, x + 3, cy + s, t, color);
+                Glass.line(c, x + 3, cy + s, cx + s - 2, cy + s, t, color);
+                Glass.line(c, cx + s - 2, cy + s, cx + s - 2, y + 2, t, color);
+                Glass.line(c, x + 3, cy, cx + s - 2, cy, t, color);
                 break;
             }
             case "search": {
