@@ -33,6 +33,19 @@ tasks.withType(JavaCompile).configureEach {
     options.encoding = 'UTF-8'
 }
 
+tasks.register('decodeOrangeBadge') {
+    def encodedBadge = file('src/main/resources/assets/orange/orange_badge.png.b64')
+    def outputBadge = file('src/main/resources/assets/orange/orange_badge.png')
+    inputs.file(encodedBadge)
+    outputs.file(outputBadge)
+    doLast {
+        def encoded = encodedBadge.getText('US-ASCII').replaceAll('\\s', '')
+        outputBadge.bytes = java.util.Base64.getDecoder().decode(encoded)
+    }
+}
+
 processResources {
+    dependsOn tasks.named('decodeOrangeBadge')
     filteringCharset = 'UTF-8'
+    exclude '**/*.png.b64'
 }
