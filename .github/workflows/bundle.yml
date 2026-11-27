@@ -65,5 +65,5 @@ jobs:
             --title "Orange Client launcher bundle" \
             --notes "Rolling release used by the Orange Client launcher. Do not delete."
           # metadata.json goes last so the catalog never points at a bundle that is not uploaded yet
-          gh release upload bundle-latest dist/orange-client.jar dist/orange-client.mrpack --clobber
+          gh release upload bundle-latest dist/*.jar dist/orange-client.mrpack --clobber
           gh release upload bundle-latest dist/metadata.json --clobber
