@@ -28,9 +28,11 @@ import de.orange.client.ui.CategoryCard;
 import de.orange.client.ui.Glass;
 import de.orange.client.ui.GlassScreen;
 import de.orange.client.ui.Rect;
+import net.minecraft.class_10799;
 import net.minecraft.class_11908;
 import net.minecraft.class_11909;
 import net.minecraft.class_2561;
+import net.minecraft.class_2960;
 import net.minecraft.class_332;
 import net.minecraft.class_429;
 import net.minecraft.class_437;
@@ -194,21 +196,9 @@ extends GlassScreen {
     }
 
     public static void logo(class_332 c, int cx, int cy, int radius, float alpha) {
-        int i;
-        int lastX = cx + radius;
-        int lastY = cy;
-        for (i = 1; i <= 64; ++i) {
-            double angle = Math.PI * 2 * (double)i / 64.0;
-            int nx = cx + (int)Math.round(Math.cos(angle) * (double)radius);
-            int ny = cy + (int)Math.round(Math.sin(angle) * (double)radius);
-            Glass.line(c, lastX, lastY, nx, ny, radius > 18 ? 2 : 1, Glass.alpha(Glass.ACCENT, alpha));
-            lastX = nx;
-            lastY = ny;
-        }
-        for (i = 0; i < 8; ++i) {
-            double a = Math.PI * 2 * (double)i / 8.0;
-            Glass.line(c, cx + (int)(Math.cos(a) * 4.0), cy + (int)(Math.sin(a) * 4.0), cx + (int)(Math.cos(a) * (double)(radius - 5)), cy + (int)(Math.sin(a) * (double)(radius - 5)), radius > 18 ? 2 : 1, Glass.alpha(Glass.ACCENT, alpha * 0.88f));
-        }
+        int size = radius * 2;
+        c.method_25293(class_10799.field_56883, class_2960.method_60655((String)"orange", (String)"orange_badge.png"),
+            cx - radius, cy - radius, 0.0f, 0.0f, size, size, 1024, 1024, 1024, 1024, Glass.alpha(-1, alpha));
     }
 
     public boolean method_25402(class_11909 click, boolean doubled) {
