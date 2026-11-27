@@ -49,3 +49,7 @@ processResources {
     filteringCharset = 'UTF-8'
     exclude '**/*.png.b64'
 }
+
+tasks.named('sourcesJar') {
+    dependsOn tasks.named('decodeOrangeBadge')
+}
