@@ -201,10 +201,10 @@ public final class CapeService {
                     "capes/" + playerUuid.toString().replace("-", "")
                 );
 
-                client.method_18859(() -> {
+                client.execute(() -> {
                     try {
                         class_1011 image = class_1011.method_49277(png);
-                        if (image.method_4307() != 64 || image.method_4321() != 32) {
+                        if (image.method_4307() != 64 || image.method_4323() != 32) {
                             image.close();
                             return;
                         }
