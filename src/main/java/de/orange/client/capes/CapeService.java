@@ -19,8 +19,13 @@ import java.util.Set;
 import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionException;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import net.minecraft.class_1011;
+import net.minecraft.class_1043;
+import net.minecraft.class_12079;
+import net.minecraft.class_2960;
 import net.minecraft.class_310;
 import net.minecraft.class_320;
 import net.minecraft.class_634;
@@ -51,6 +56,10 @@ public final class CapeService {
     private static volatile UUID tokenForMinecraftUuid;
     private static volatile Set<UUID> orangePlayers = Set.of();
     private static volatile long nextHeartbeatAt;
+    private static final ConcurrentHashMap<UUID, class_2960> CAPE_TEXTURES = new ConcurrentHashMap<>();
+    private static final ConcurrentHashMap<UUID, Long> CAPE_REFRESH_AT = new ConcurrentHashMap<>();
+    private static final Set<UUID> CAPE_LOADING = ConcurrentHashMap.newKeySet();
+    private static final long CAPE_REFRESH_NANOS = Duration.ofSeconds(60).toNanos();
 
     private CapeService() {
     }
@@ -130,11 +139,93 @@ public final class CapeService {
                     });
                 }
                 orangePlayers = Set.copyOf(next);
+                // Fetch published capes for players currently in this server's player list.
+                for (UUID playerUuid : uuids) {
+                    ensureCapeTexture(playerUuid);
+                }
             } catch (Exception error) {
                 // A failed heartbeat simply lets the 90-second server-side presence expire.
                 orangePlayers = Set.of();
             }
         });
+    }
+
+    /**
+     * Returns the registered dynamic cape texture, or null until it has loaded.
+     */
+    public static class_2960 capeTexture(UUID playerUuid) {
+        return playerUuid == null ? null : CAPE_TEXTURES.get(playerUuid);
+    }
+
+    private static void ensureCapeTexture(UUID playerUuid) {
+        long now = System.nanoTime();
+        Long lastCheck = CAPE_REFRESH_AT.get(playerUuid);
+        if (lastCheck != null && now - lastCheck < CAPE_REFRESH_NANOS) {
+            return;
+        }
+        if (!CAPE_LOADING.add(playerUuid)) {
+            return;
+        }
+
+        NETWORK.execute(() -> {
+            try {
+                HttpRequest request = HttpRequest.newBuilder(
+                    URI.create(API + "/v1/capes/player/" + playerUuid)
+                )
+                    .timeout(REQUEST_TIMEOUT)
+                    .header("Accept", "image/png")
+                    .GET()
+                    .build();
+                HttpResponse<byte[]> response = HTTP.send(request, HttpResponse.BodyHandlers.ofByteArray());
+                CAPE_REFRESH_AT.put(playerUuid, System.nanoTime());
+
+                if (response.statusCode() == 404) {
+                    CAPE_TEXTURES.remove(playerUuid);
+                    return;
+                }
+                if (response.statusCode() < 200 || response.statusCode() >= 300) {
+                    return;
+                }
+
+                byte[] png = response.body();
+                if (png == null || png.length == 0 || png.length > 256 * 1024) {
+                    return;
+                }
+
+                class_310 client = class_310.method_1551();
+                if (client == null) {
+                    return;
+                }
+                class_2960 textureId = class_2960.method_60655(
+                    "orange",
+                    "capes/" + playerUuid.toString().replace("-", "")
+                );
+
+                client.method_18859(() -> {
+                    try {
+                        class_1011 image = class_1011.method_49277(png);
+                        if (image.method_4307() != 64 || image.method_4321() != 32) {
+                            image.close();
+                            return;
+                        }
+                        class_1043 texture = new class_1043(() -> "Orange cape " + playerUuid, image);
+                        client.method_1531().method_4616(textureId, texture);
+                        CAPE_TEXTURES.put(playerUuid, textureId);
+                    } catch (Exception error) {
+                        tracingUnavailable(playerUuid, error);
+                    }
+                });
+            } catch (Exception error) {
+                tracingUnavailable(playerUuid, error);
+            } finally {
+                CAPE_LOADING.remove(playerUuid);
+            }
+        });
+    }
+
+    private static void tracingUnavailable(UUID playerUuid, Exception error) {
+        // Keep texture failures isolated to this player; retry after the refresh interval.
+        CAPE_REFRESH_AT.put(playerUuid, System.nanoTime());
     }
 
     public static CompletableFuture<CapeStatus> loadMyCape() {
