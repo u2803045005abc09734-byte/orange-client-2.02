@@ -57,7 +57,6 @@ implements GuiPage {
     private final ToggleComponent blur;
     private final SliderComponent opacity;
     private final ColorPickerComponent guiColour;
-    private final ColorPickerComponent hudColour;
     private Rect viewport = new Rect(0, 0, 0, 0);
     private int scroll;
     private int contentHeight;
@@ -90,10 +89,6 @@ implements GuiPage {
         });
         this.guiColour = new ColorPickerComponent(() -> ModulePage.config().guiAccent, value -> {
             ModulePage.config().guiAccent = value;
-            this.changed();
-        });
-        this.hudColour = new ColorPickerComponent(() -> ModulePage.config().accent, value -> {
-            ModulePage.config().accent = value;
             this.changed();
         });
     }
@@ -183,7 +178,7 @@ implements GuiPage {
 
     private int renderGeneral(class_332 c, Rect header, GuiFrame frame, PopupManager popups) {
         this.sectionHeader(c, header, "Client settings", this.general, this.generalArrow, frame);
-        int fullHeight = 143;
+        int fullHeight = 116;
         int shown = Math.round(this.general.height(fullHeight, frame));
         Rect full = new Rect(header.x() + 5, header.bottom() + 3, header.w() - 10, fullHeight);
         Rect visible = this.general.visibleBounds(full);
@@ -194,7 +189,6 @@ implements GuiPage {
             this.settingToggle(c, new Rect(full.x() + 6, y += 27, full.w() - 12, 27), "Background blur", this.blur, visible, frame);
             this.settingSlider(c, new Rect(full.x() + 6, y += 27, full.w() - 12, 27), "Glass opacity", this.opacity, visible, frame);
             this.settingColour(c, new Rect(full.x() + 6, y += 27, full.w() - 12, 27), "Interface accent", this.guiColour, visible, frame, popups);
-            this.settingColour(c, new Rect(full.x() + 6, y += 27, full.w() - 12, 27), "HUD & crosshair accent", this.hudColour, visible, frame, popups);
             c.method_44380();
         }
         return header.bottom() + 3 + shown;
