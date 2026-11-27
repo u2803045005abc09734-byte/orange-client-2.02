@@ -220,7 +220,7 @@ def main():
     out_dir.mkdir(parents=True, exist_ok=True)
 
     badge = __import__("base64").b64decode(ORANGE_BADGE_B64)
-        files = []
+    files = []
     versions = {}
     print("Resolving and patching requested OrangeClient mods...")
     for slug, (requested, path, display_name) in MODS.items():
