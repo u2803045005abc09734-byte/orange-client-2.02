@@ -161,6 +161,14 @@ public final class CapeService {
         return playerUuid == null ? null : CAPE_TEXTURES.get(playerUuid);
     }
 
+    private static void refreshCapeTexture(UUID playerUuid) {
+        if (playerUuid == null) {
+            return;
+        }
+        CAPE_REFRESH_AT.remove(playerUuid);
+        ensureCapeTexture(playerUuid);
+    }
+
     private static void ensureCapeTexture(UUID playerUuid) {
         long now = System.nanoTime();
         Long lastCheck = CAPE_REFRESH_AT.get(playerUuid);
@@ -256,6 +264,7 @@ public final class CapeService {
                 String token = ensureCurrentSession();
                 HttpResponse<String> response = sendAuthorized(token, "/v1/capes/me", "PUT", "image/png", png);
                 requireSuccess(response);
+                refreshCapeTexture(tokenForMinecraftUuid);
                 return "Cape veröffentlicht! Dein neues Cape ersetzt dein bisheriges Cape.";
             } catch (Exception error) {
                 throw new CompletionException(friendly(error));
@@ -269,6 +278,11 @@ public final class CapeService {
                 String token = ensureCurrentSession();
                 HttpResponse<String> response = sendAuthorized(token, "/v1/capes/me", "DELETE", null, null);
                 requireSuccess(response);
+                UUID ownUuid = tokenForMinecraftUuid;
+                if (ownUuid != null) {
+                    CAPE_TEXTURES.remove(ownUuid);
+                    CAPE_REFRESH_AT.remove(ownUuid);
+                }
                 return "Dein Cape wurde entfernt.";
             } catch (Exception error) {
                 throw new CompletionException(friendly(error));
