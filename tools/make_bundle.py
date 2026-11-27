@@ -65,15 +65,28 @@ def sha1_of(path):
     return digest.hexdigest()
 
 def resolve_version(slug, requested):
-    query = urllib.parse.urlencode({
-        "game_versions": json.dumps([MC_VERSION]),
-        "loaders": json.dumps(["fabric"]),
-    })
-    versions = get_json(f"https://api.modrinth.com/v2/project/{slug}/version?{query}")
+    # Fetch the recent version list without the game-version filter: some
+    # Modrinth releases have compatibility metadata split across loaders/
+    # game_versions and can be missed by the filtered endpoint.
+    versions = get_json(f"https://api.modrinth.com/v2/project/{slug}/version?limit=100")
     releases = [v for v in versions if v.get("version_type") == "release"]
     pool = releases or versions
     if requested:
-        pool = [v for v in pool if v.get("version_number") == requested]
+        exact = [v for v in pool if v.get("version_number") == requested]
+        if not exact:
+            raise LookupError(f"no {slug} version {requested} on Modrinth")
+        compatible = [
+            v for v in exact
+            if MC_VERSION in v.get("game_versions", [])
+            and "fabric" in v.get("loaders", [])
+        ]
+        pool = compatible or exact
+    else:
+        pool = [
+            v for v in pool
+            if MC_VERSION in v.get("game_versions", [])
+            and "fabric" in v.get("loaders", [])
+        ]
     if not pool:
         raise LookupError(f"no compatible {slug} version {requested or 'latest'} for {MC_VERSION}")
     return pool[0]
