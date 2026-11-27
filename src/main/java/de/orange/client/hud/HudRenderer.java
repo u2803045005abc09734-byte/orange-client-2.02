@@ -76,7 +76,7 @@ public final class HudRenderer {
 
     public void render(class_332 c, class_9779 tickCounter) {
         class_310 mc = class_310.method_1551();
-        if (mc.field_1724 == null || mc.field_1690.field_1842 || mc.field_1755 instanceof HudEditorScreen) {
+        if (mc.field_1724 == null || mc.field_1690.field_1842 || (mc.field_1755 != null && !(mc.field_1755 instanceof HudEditorScreen))) {
             return;
         }
         this.renderModules(c, mc.method_22683().method_4486(), mc.method_22683().method_4502(), false);
