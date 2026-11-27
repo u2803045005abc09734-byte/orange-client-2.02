@@ -20,7 +20,7 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 public abstract class PlayerListHudMixin {
     @Inject(method = "method_1918", at = @At("RETURN"), cancellable = true)
     private void orange$clientBadge(class_640 entry, CallbackInfoReturnable<class_2561> cir) {
-        if (entry == null || !CapeService.isOrangeClient(entry.method_2966().getId())) {
+        if (entry == null || !CapeService.isOrangeClient(entry.method_2966().id())) {
             return;
         }
 
