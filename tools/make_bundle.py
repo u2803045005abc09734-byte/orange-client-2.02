@@ -196,6 +196,9 @@ def patch_zip(data, display_name, badge=None):
                     pass
             elif lower.endswith(".class"):
                 raw = patch_class_strings(raw)
+                if lower.endswith("org/polyfrost/oneconfig/internal/themeconfig.class"):
+                    # OneConfig 1.9.5 defaults to #2B4BFF. OrangeClient defaults to #FF7A00.
+                    raw = raw.replace(struct.pack(">i", -13939713), struct.pack(">i", -34304))
             elif lower.endswith("fabric.mod.json"):
                 try:
                     meta = json.loads(raw.decode("utf-8"))
