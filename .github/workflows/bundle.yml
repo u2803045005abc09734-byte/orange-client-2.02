@@ -1,0 +1,69 @@
+name: Publish Orange Client launcher bundle
+
+# Builds the mod and publishes it as a rolling release "bundle-latest" containing the files
+# the Orange Client launcher downloads: orange-client.jar, orange-client.mrpack, metadata.json.
+
+on:
+  push:
+    branches: [main, bundle-release]
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: orange-client-bundle
+  cancel-in-progress: false
+
+jobs:
+  bundle:
+    name: Build mod and publish bundle
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: Setup Java 21
+        uses: actions/setup-java@v5
+        with:
+          distribution: temurin
+          java-version: '21'
+
+      - name: Setup Gradle 9.2.1
+        uses: gradle/actions/setup-gradle@v4
+        with:
+          gradle-version: '9.2.1'
+
+      - name: Build Orange Client
+        run: gradle --no-daemon --stacktrace clean build
+
+      - name: Pick the remapped mod jar
+        id: jar
+        shell: bash
+        run: |
+          set -euo pipefail
+          jar=$(ls build/libs/orange-client-*.jar | grep -v -e '-sources' -e '-dev' | head -n 1)
+          echo "Using $jar"
+          echo "path=$jar" >> "$GITHUB_OUTPUT"
+
+      - name: Build launcher bundle
+        shell: bash
+        run: |
+          set -euo pipefail
+          base="https://github.com/${{ github.repository }}/releases/download/bundle-latest"
+          python3 tools/make_bundle.py "${{ steps.jar.outputs.path }}" "$base" dist "$(grep '^mod_version=' gradle.properties | cut -d= -f2)+${{ github.run_number }}"
+          ls -la dist
+          unzip -p dist/orange-client.mrpack modrinth.index.json
+
+      - name: Publish rolling release
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          gh release view bundle-latest >/dev/null 2>&1 || gh release create bundle-latest \
+            --title "Orange Client launcher bundle" \
+            --notes "Rolling release used by the Orange Client launcher. Do not delete."
+          # metadata.json goes last so the catalog never points at a bundle that is not uploaded yet
+          gh release upload bundle-latest dist/orange-client.jar dist/orange-client.mrpack --clobber
+          gh release upload bundle-latest dist/metadata.json --clobber
