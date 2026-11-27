@@ -15,7 +15,7 @@
 package de.orange.client.gui.premium;
 
 import de.orange.client.OrangeClient;
-import de.orange.client.gui.EmptyScreen;
+import de.orange.client.gui.CapeEditorScreen;
 import de.orange.client.gui.ProfilesScreen;
 import de.orange.client.gui.premium.GuiPage;
 import de.orange.client.gui.premium.ModulePage;
@@ -50,13 +50,13 @@ import org.joml.Matrix3x2fStack;
 public final class ClickGuiScreen
 extends GlassScreen {
     public static final Category[] TABS = new Category[]{Category.PVP, Category.VISUALS, Category.HUD, Category.PLAYER, Category.MISC};
-    private static final String[] HEADER_ICONS = new String[]{"search", "theme", "social", "wardrobe", "layers"};
-    private static final String[] HEADER_HINTS = new String[]{"Search", "Theme colour", "Profiles", "Cosmetics", "Client settings"};
+    private static final String[] HEADER_ICONS = new String[]{"search", "theme", "profiles", "layers"};
+    private static final String[] HEADER_HINTS = new String[]{"Search", "Theme colour", "Profiles", "Client settings"};
     private final Map<Category, GuiPage> pages = new EnumMap<Category, GuiPage>(Category.class);
     private final PopupManager popups = new PopupManager();
     private final Anim underlineX = new Anim();
     private final Anim underlineWidth = new Anim();
-    private final Anim[] headerHover = new Anim[]{new Anim(), new Anim(), new Anim(), new Anim(), new Anim()};
+    private final Anim[] headerHover = new Anim[]{new Anim(), new Anim(), new Anim(), new Anim()};
     private final ColorPickerComponent themePicker = new ColorPickerComponent(() -> OrangeClient.instance().config().guiAccent, value -> {
         OrangeClient.instance().config().guiAccent = value;
     });
@@ -282,7 +282,7 @@ extends GlassScreen {
                 this.select(TABS[i]);
                 return true;
             }
-            for (i = 0; i < 5; ++i) {
+            for (i = 0; i < 4; ++i) {
                 if (!this.layout.headerIcon(i).contains(x, y)) continue;
                 switch (i) {
                     case 0: {
@@ -302,10 +302,6 @@ extends GlassScreen {
                         break;
                     }
                     case 3: {
-                        this.field_22787.method_1507((class_437)new EmptyScreen(this, "wardrobe"));
-                        break;
-                    }
-                    case 4: {
                         this.focusSettings();
                     }
                 }
