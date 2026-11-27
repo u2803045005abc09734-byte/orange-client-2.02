@@ -155,13 +155,11 @@ implements GuiPage {
         if (this.category == Category.HUD || this.category == Category.PVP) {
             Rect tools = new Rect(x, y, w, 31);
             GuiText.small(c, this.category == Category.HUD ? "Position, size & visibility" : "Your essentials for combat", x + 10, y + 10, ModulePage.color(-5920585, frame));
-            Rect edit = new Rect(tools.right() - 102, y + 1, 94, 24);
-            this.button(c, edit, "HUD editor", () -> this.open(new HudEditorScreen(this.parent)), frame);
-            y += 36;
             if (this.category == Category.HUD) {
-                this.settingSlider(c, new Rect(x + 10, y, w - 20, 27), "Global HUD scale", this.globalScale, frame);
-                y += 33;
+                Rect edit = new Rect(tools.right() - 102, y + 1, 94, 24);
+                this.button(c, edit, "Edit HUD", () -> this.open(new HudEditorScreen(this.parent)), frame);
             }
+            y += 36;
         } else if (this.category == Category.PLAYER) {
             GuiText.small(c, "Camera & player information", x + 10, y + 6, ModulePage.color(-5920585, frame));
             y += 25;
