@@ -52,6 +52,7 @@ LIBS = {
 }
 
 def get_json(url):
+    print(f"GET JSON: {url}")
     req = urllib.request.Request(url, headers={"User-Agent": USER_AGENT})
     with urllib.request.urlopen(req, timeout=90) as response:
         return json.load(response)
