@@ -68,6 +68,9 @@ public final class CapeService {
     public record CapeStatus(boolean published, String message) {
     }
 
+    public record CommunityCape(UUID minecraftUuid, String username, String textureUrl) {
+    }
+
     public static boolean isOrangeClient(UUID uuid) {
         return uuid != null && orangePlayers.contains(uuid);
     }
@@ -255,6 +258,72 @@ public final class CapeService {
         }, NETWORK);
     }
 
+    /** Downloads the current account's published PNG so it can be edited in place. */
+    public static CompletableFuture<byte[]> loadMyCapePng() {
+        return CompletableFuture.supplyAsync(() -> {
+            try {
+                String token = ensureCurrentSession();
+                HttpResponse<String> response = sendAuthorized(token, "/v1/capes/me", "GET", null, null);
+                requireSuccess(response);
+                JsonObject json = JsonParser.parseString(response.body()).getAsJsonObject();
+                if (!json.has("published") || !json.get("published").getAsBoolean()
+                    || !json.has("texture_url") || json.get("texture_url").isJsonNull()) {
+                    return null;
+                }
+                return downloadCapeTexture(json.get("texture_url").getAsString());
+            } catch (Exception error) {
+                throw new CompletionException(friendly(error));
+            }
+        }, NETWORK);
+    }
+
+    /** Returns the newest public Orange capes, limited by the server to a safe page size. */
+    public static CompletableFuture<List<CommunityCape>> loadCommunityCapes() {
+        return CompletableFuture.supplyAsync(() -> {
+            try {
+                HttpRequest request = HttpRequest.newBuilder(URI.create(API + "/v1/capes"))
+                    .timeout(REQUEST_TIMEOUT)
+                    .header("Accept", "application/json")
+                    .GET()
+                    .build();
+                HttpResponse<String> response = send(request);
+                requireSuccess(response);
+                JsonArray array = JsonParser.parseString(response.body()).getAsJsonObject().getAsJsonArray("capes");
+                List<CommunityCape> result = new ArrayList<>();
+                if (array != null) {
+                    for (int i = 0; i < array.size(); i++) {
+                        try {
+                            JsonObject item = array.get(i).getAsJsonObject();
+                            UUID uuid = UUID.fromString(item.get("minecraft_uuid").getAsString());
+                            String username = item.get("username").getAsString();
+                            String textureUrl = item.get("texture_url").getAsString();
+                            result.add(new CommunityCape(uuid, username, textureUrl));
+                        } catch (RuntimeException ignored) {
+                            // Ignore malformed list entries without losing the remaining capes.
+                        }
+                    }
+                }
+                return List.copyOf(result);
+            } catch (Exception error) {
+                throw new CompletionException(friendly(error));
+            }
+        }, NETWORK);
+    }
+
+    /** Downloads a selected community cape as a PNG template. */
+    public static CompletableFuture<byte[]> loadCommunityCape(CommunityCape cape) {
+        return CompletableFuture.supplyAsync(() -> {
+            try {
+                if (cape == null) {
+                    throw new IllegalArgumentException("Kein Community-Cape ausgewählt.");
+                }
+                return downloadCapeTexture(cape.textureUrl());
+            } catch (Exception error) {
+                throw new CompletionException(friendly(error));
+            }
+        }, NETWORK);
+    }
+
     public static CompletableFuture<String> publishCape(byte[] png) {
         return CompletableFuture.supplyAsync(() -> {
             try {
@@ -354,6 +423,29 @@ public final class CapeService {
 
     private static HttpResponse<String> send(HttpRequest request) throws IOException, InterruptedException {
         return HTTP.send(request, HttpResponse.BodyHandlers.ofString(StandardCharsets.UTF_8));
+    }
+
+    private static byte[] downloadCapeTexture(String texturePath) throws IOException, InterruptedException {
+        if (texturePath == null || texturePath.isBlank()) {
+            throw new IOException("Für dieses Cape ist keine Textur-Adresse vorhanden.");
+        }
+        URI textureUri = texturePath.startsWith("https://") || texturePath.startsWith("http://")
+            ? URI.create(texturePath)
+            : URI.create(API + (texturePath.startsWith("/") ? texturePath : "/" + texturePath));
+        HttpRequest request = HttpRequest.newBuilder(textureUri)
+            .timeout(REQUEST_TIMEOUT)
+            .header("Accept", "image/png")
+            .GET()
+            .build();
+        HttpResponse<byte[]> response = HTTP.send(request, HttpResponse.BodyHandlers.ofByteArray());
+        if (response.statusCode() < 200 || response.statusCode() >= 300) {
+            throw new IOException("Cape-Server antwortet mit HTTP " + response.statusCode() + ".");
+        }
+        byte[] png = response.body();
+        if (png == null || png.length == 0 || png.length > 256 * 1024) {
+            throw new IOException("Die heruntergeladene Cape-PNG ist ungültig oder zu groß.");
+        }
+        return png;
     }
 
     private static void requireSuccess(HttpResponse<String> response) throws IOException {
