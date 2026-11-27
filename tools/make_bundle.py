@@ -107,6 +107,9 @@ def resolve_version(slug, requested):
     return pool[0]
 
 def modrinth_file(slug, requested):
+    if slug == "oneconfig" and requested == "1.9.5":
+        data = get_bytes("https://api.modrinth.com/maven/maven.modrinth/AibBIVmj/u0Ap01Nd/AibBIVmj-u0Ap01Nd.jar")
+        return data, requested
     version = resolve_version(slug, requested)
     primary = next((f for f in version["files"] if f.get("primary")), version["files"][0])
     url = primary["url"]
