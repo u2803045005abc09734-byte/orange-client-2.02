@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
   "id": "orange",
-  "version": "1.1.1",
+  "version": "1.1.2",
   "name": "Orange Client",
   "description": "Ein eigenständiger Fabric-Client mit Glass-Oberfläche, HUD-Editor, Profilen und visuellem Modrinth Resource-Pack-Browser. Verfeinerte, weich gerundete ClickGUI-Schalter.",
   "authors": [
