@@ -65,7 +65,7 @@ extends GlassScreen {
 
     private Rect inspector() {
         int w = Math.min(188, Math.max(148, this.field_22789 / 3));
-        return new Rect(this.field_22789 - w - 12, 40, w, 164);
+        return new Rect(this.field_22789 - w - 12, 40, w, 196);
     }
 
     private Rect done() {
@@ -172,10 +172,23 @@ extends GlassScreen {
             if (this.config().module((String)this.selected).color != colors[i]) continue;
             c.method_25294(x + 3, p.y() + 154, x + 10, p.y() + 155, -986895);
         }
+        Glass.text(c, "HUD-Akzent", p.x() + 12, p.y() + 174, -6184277);
+        int[] accents = this.accentColors();
+        for (int i = 0; i < accents.length; ++i) {
+            int x = p.right() - 75 + i * 17;
+            Glass.rounded(c, x, p.y() + 169, 13, 13, 4, accents[i]);
+            if (this.config().accent == accents[i]) {
+                c.method_25294(x + 3, p.y() + 184, x + 10, p.y() + 185, -986895);
+            }
+        }
     }
 
     private int[] colors() {
         return new int[]{-723984, this.config().accent, -4668975, -7285067};
+    }
+
+    private int[] accentColors() {
+        return new int[]{0xFFFF7A18, 0xFFE65C00, 0xFF59A6FF, 0xFF50DCA4};
     }
 
     public boolean method_25402(class_11909 click, boolean doubled) {
@@ -225,6 +238,14 @@ extends GlassScreen {
                     this.save();
                     return true;
                 }
+            }
+            int[] accents = this.accentColors();
+            for (int i = 0; i < accents.length; ++i) {
+                if (!new Rect(p.right() - 75 + i * 17, p.y() + 169, 13, 16).contains(mx, my)) continue;
+                this.config().accent = accents[i];
+                this.dirty = true;
+                this.save();
+                return true;
             }
             return true;
         }
