@@ -29,6 +29,7 @@ import net.minecraft.class_2960;
 import net.minecraft.class_310;
 import net.minecraft.class_320;
 import net.minecraft.class_634;
+import net.minecraft.class_640;
 
 /**
  * Orange-owned cape and client-presence API client.
@@ -100,8 +101,11 @@ public final class CapeService {
         Collection<?> listedPlayers = networkHandler.method_31363();
         List<UUID> uuids = new ArrayList<>();
         for (Object value : listedPlayers) {
-            if (value instanceof UUID uuid && uuids.size() < 80) {
-                uuids.add(uuid);
+            if (value instanceof class_640 entry && uuids.size() < 80) {
+                UUID uuid = entry.method_2966().id();
+                if (uuid != null && !uuids.contains(uuid)) {
+                    uuids.add(uuid);
+                }
             }
         }
         if (!uuids.contains(ownUuid) && uuids.size() < 80) {
