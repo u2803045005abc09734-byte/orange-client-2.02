@@ -15,7 +15,6 @@
 package de.orange.client.gui.premium;
 
 import de.orange.client.OrangeClient;
-import de.orange.client.gui.CapeEditorScreen;
 import de.orange.client.gui.ProfilesScreen;
 import de.orange.client.gui.premium.GuiPage;
 import de.orange.client.gui.premium.ModulePage;
