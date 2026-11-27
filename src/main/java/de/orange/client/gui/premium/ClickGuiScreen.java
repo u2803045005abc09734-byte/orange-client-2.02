@@ -194,7 +194,7 @@ extends GlassScreen {
     private void drawHeader(class_332 c, GuiFrame frame, long now) {
         GuiTheme t = GuiTheme.current();
         Rect h = this.layout.header();
-        c.method_25293(class_10799.field_56883, class_2960.method_60655((String)"orange", (String)"icon.png"), h.x(), h.y() + 7, 0.0f, 0.0f, 13, 13, 128, 128, 128, 128, GuiTheme.alpha(-1, frame.alpha()));
+        c.method_25293(class_10799.field_56883, class_2960.method_60655((String)"orange", (String)"orange_badge.png"), h.x(), h.y() + 5, 0.0f, 0.0f, 17, 17, 1024, 1024, 1024, 1024, GuiTheme.alpha(-1, frame.alpha()));
         GuiText.boldSized(c, "Orange Client", h.x() + 19, h.y() + 7, 12.0f, GuiTheme.opacity(t.text(), frame.alpha()));
         int hovered = -1;
         for (int i = 0; i < HEADER_ICONS.length; ++i) {
