@@ -139,7 +139,7 @@ extends GlassScreen {
             Glass.button(c, multi, "Server", multi.contains(mx, my));
             Glass.button(c, options, "Optionen", options.contains(mx, my));
         } else {
-            Glass.text(c, "ORANGECLIENT v1.1.1", 16, 17, -9868426);
+            Glass.text(c, "ORANGECLIENT v1.1.2", 16, 17, -9868426);
         }
         this.headerIcon(c, this.packButton(), "pack", mx, my);
         this.headerIcon(c, this.settingsButton(), "settings", mx, my);
