@@ -16,7 +16,7 @@ package de.orange.client.gui;
 import de.orange.client.OrangeClient;
 import de.orange.client.config.ClientConfig;
 import de.orange.client.gui.CategoryScreen;
-import de.orange.client.gui.EmptyScreen;
+import de.orange.client.gui.CapeEditorScreen;
 import de.orange.client.gui.MenuLayout;
 import de.orange.client.gui.ProfilesScreen;
 import de.orange.client.gui.ResourcePackScreen;
@@ -39,8 +39,8 @@ import net.minecraft.class_526;
 
 public final class MainMenuScreen
 extends GlassScreen {
-    private static final String[] DOCK = new String[]{"Wardrobe", "Search", "Social", "Profiles"};
-    private static final String[] DOCK_ICONS = new String[]{"wardrobe", "search", "social", "profiles"};
+    private static final String[] DOCK = new String[]{"Capes", "Search", "Profiles", "Settings"};
+    private static final String[] DOCK_ICONS = new String[]{"cape", "search", "profiles", "settings"};
     private final class_437 parent;
     private final boolean titleMode;
     private final CategoryCard[] cards = new CategoryCard[6];
@@ -137,7 +137,7 @@ extends GlassScreen {
             Glass.button(c, multi, "Server", multi.contains(mx, my));
             Glass.button(c, options, "Optionen", options.contains(mx, my));
         } else {
-            Glass.text(c, "ORANGE / CLIENT", 16, 17, -9868426);
+            Glass.text(c, "ORANGECLIENT", 16, 17, -9868426);
         }
         this.headerIcon(c, this.packButton(), "pack", mx, my);
         this.headerIcon(c, this.settingsButton(), "settings", mx, my);
@@ -257,10 +257,10 @@ extends GlassScreen {
         for (i = 0; i < 4; ++i) {
             if (!this.layout.dockItems().get(i).contains(x, y)) continue;
             this.field_22787.method_1507((class_437)(switch (i) {
-                case 0 -> new EmptyScreen(this, "wardrobe");
+                case 0 -> new CapeEditorScreen(this);
                 case 1 -> new SearchScreen(this);
-                case 2 -> new EmptyScreen(this, "social");
-                default -> new ProfilesScreen(this);
+                case 2 -> new ProfilesScreen(this);
+                default -> new SettingsScreen(this);
             }));
             return true;
         }
