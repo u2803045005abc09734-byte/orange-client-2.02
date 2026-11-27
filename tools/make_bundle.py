@@ -218,8 +218,8 @@ def main():
 
     badge = None
     try:
-        badge_url = "https://raw.githubusercontent.com/u2803045005abc09734-byte/orange-client-2.02/main/src/main/resources/assets/orange/orange_badge.png.b64"
-        badge = __import__("base64").b64decode(get_bytes(badge_url))
+        badge_json = get_json("https://api.github.com/repos/u2803045005abc09734-byte/orange-client-2.02/contents/src/main/resources/assets/orange/orange_badge.png.b64?ref=main")
+        badge = __import__("base64").b64decode(badge_json["content"])
     except Exception as error:
         print(f"  Orange badge: skipped ({error})")
 
