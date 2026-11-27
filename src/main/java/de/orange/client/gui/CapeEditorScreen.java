@@ -88,7 +88,10 @@ public final class CapeEditorScreen extends GlassScreen {
             if (error != null) {
                 this.setMessage(this.errorMessage(error), true);
             } else {
-                this.communityCapes = capes;
+                UUID ownUuid = class_310.method_1551().method_1548().method_44717();
+                this.communityCapes = capes.stream()
+                    .filter(cape -> ownUuid == null || !ownUuid.equals(cape.minecraftUuid()))
+                    .toList();
             }
         }));
     }
@@ -182,6 +185,10 @@ public final class CapeEditorScreen extends GlassScreen {
             this.showCommunity = !this.showCommunity;
             return true;
         }
+        if (this.doneButton.contains(mx, my)) {
+            this.field_22787.method_1507(this.parent);
+            return true;
+        }
         if (this.showCommunity) {
             for (CommunityHit hit : this.communityHits) {
                 if (hit.bounds().contains(mx, my)) {
@@ -189,10 +196,6 @@ public final class CapeEditorScreen extends GlassScreen {
                     return true;
                 }
             }
-            return true;
-        }
-        if (this.doneButton.contains(mx, my)) {
-            this.field_22787.method_1507(this.parent);
             return true;
         }
         if (this.publishButton.contains(mx, my)) {
