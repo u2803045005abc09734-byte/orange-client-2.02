@@ -64,6 +64,10 @@ jobs:
           gh release view bundle-latest >/dev/null 2>&1 || gh release create bundle-latest \
             --title "Orange Client launcher bundle" \
             --notes "Rolling release used by the Orange Client launcher. Do not delete."
+          # Remove stale assets first so no legacy/old bundle file remains on the rolling release.
+          for asset_id in $(gh api "repos/${{ github.repository }}/releases/tags/bundle-latest" --jq '.assets[].id'); do
+            gh api --method DELETE "repos/${{ github.repository }}/releases/assets/${asset_id}" >/dev/null
+          done
           # metadata.json goes last so the catalog never points at a bundle that is not uploaded yet
           for asset in dist/*.jar; do
             echo "Uploading $asset"

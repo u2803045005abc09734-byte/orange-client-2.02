@@ -27,6 +27,15 @@
   "suggests": {
     "modmenu": "*"
   },
+  "custom": {
+    "modmenu": {
+      "parent": {
+        "id": "orange-client-bundle",
+        "name": "OrangeClient",
+        "description": "All modules included in the OrangeClient bundle."
+      }
+    }
+  },
   "jars": [
     {
       "file": "META-INF/jars/common-image-3.12.0.jar"
