@@ -10,6 +10,7 @@ import io
 import json
 import struct
 import sys
+import urllib.error
 import urllib.parse
 import urllib.request
 import zipfile
@@ -34,6 +35,8 @@ MODS = {
     "polycrosshair": ("2.0.11", "mods/orange-crosshair.jar", "OrangeCrosshair"),
     "polyhitbox": ("1.4.5", "mods/orange-hitbox.jar", "OrangeHitbox"),
     "polysprint": ("1.3.5", "mods/orange-sprint.jar", "OrangeSprint"),
+    "polynametag": ("1.2.7", "mods/orange-nametag.jar", "OrangeNametag"),
+    "soundtweaks": ("1.0.2", "mods/sound-tweaks.jar", "SoundTweaks"),
     "polytime": ("1.3.4", "mods/orange-time.jar", "OrangeTime"),
     "polyweather": ("1.3.3", "mods/orange-weather.jar", "OrangeWeather"),
     "chatting": ("3.2.7", "mods/chatting.jar", "Chatting"),
@@ -69,6 +72,8 @@ EXACT_SHA1 = {
     "polydium": "2ff72ee2494317bef36708743de878aed52370f1",
     "polyhitbox": "4b012c9a9103e91689e60fa93608fdd9124bdf8e",
     "polysprint": "3fe6cc0d721789d380aaf80b99aa1b9782fa1756",
+    "polynametag": "5bcfc277774c7d5e8c48c1a4970ea42a40fea032",
+    "soundtweaks": "02df7db355d294155e08baa5955f7c5196dbea6e",
     "polytime": "cfe659c861fc753a2bb9b2236a67c48b871033f7",
     "polyweather": "37de2857e02ee01cff1a31778699d95448ceb81b",
     "vanillahud": "b1b1b26b8b2824fffff723537b3ef40c71db9bbf",
@@ -146,7 +151,12 @@ def modrinth_file(slug, requested):
     if slug in VERSION_IDS:
         version = get_json(f"https://api.modrinth.com/v2/project/{slug}/version/{VERSION_IDS[slug]}")
     elif slug in EXACT_SHA1:
-        version = get_json(f"https://api.modrinth.com/v2/version_file/{EXACT_SHA1[slug]}")
+        try:
+            version = get_json(f"https://api.modrinth.com/v2/version_file/{EXACT_SHA1[slug]}")
+        except urllib.error.HTTPError as error:
+            # The exact file hash is not known to Modrinth: fall back to the requested version number.
+            print(f"  {slug}: hash lookup failed ({error.code}), resolving version {requested}")
+            version = resolve_version(slug, requested)
     else:
         version = resolve_version(slug, requested)
     primary = next((f for f in version["files"] if f.get("primary")), version["files"][0])
