@@ -23,12 +23,11 @@ USER_AGENT = "OrangeClient-bundle-builder/1.2"
 MODMENU_PARENT = {
     "id": "orange-client-bundle",
     "name": "OrangeClient",
-    "description": "All modules included in the OrangeClient bundle.",
 }
 
-# Exact versions from the supplied 1.21.11 mod collection.
+# Exact versions selected from the user's latest uploaded ZIP (Neuer Ordner (3).zip).
+# Only these listed mods are packaged; duplicate Mod Menu file entries are resolved to one JAR.
 MODS = {
-    "oneconfig": ("1.9.5", "mods/orange-config.jar", "OrangeConfig"),
     "polydium": ("1.4.23", "mods/orange-performance.jar", "OrangePerformance"),
     "polyblur": ("2.2.11", "mods/orange-blur.jar", "OrangeBlur"),
     "polycrosshair": ("2.0.11", "mods/orange-crosshair.jar", "OrangeCrosshair"),
@@ -45,19 +44,16 @@ MODS = {
     "behindyou": ("3.5.2", "mods/behind-you.jar", "BehindYouV3"),
     "colorsaturation": ("1.3.4", "mods/color-saturation.jar", "ColorSaturation"),
     "damagetint": ("3.7.4", "mods/damage-tint.jar", "DamageTint"),
-    "soundtweaks": ("1.0.2", "mods/sound-tweaks.jar", "SoundTweaks"),
 }
 
-# Required libraries for the supplied set.
+# Additional files that are present in the user's ZIP and required by included mods.
 VERSION_IDS = {
-    "oneconfig": "u0Ap01Nd",
     "chattweaks": "360hYztL",
     "behindyou": "FCeKgRN0",
 }
 
 EXACT_SHA1 = {
     "crashpatch": "853366f6a7dd02b0be9e3ad873ac1f068be112f9",
-    "oneconfig": "3bc6d441f18d3da217a0e0edae3dff7730fb8cd6",
     "behindyouv3": "09ac42a9dbd37d91d0d054e4c3d45ef030772304",
     "chatting": "7e75a2eb2226a2ba1b24cd3e89b7d2f4e161694c",
     "chattweaks": "b3a6f908ec3e595d4ab994baceef0e2f803109442",
@@ -72,7 +68,6 @@ EXACT_SHA1 = {
     "polysprint": "3fe6cc0d721789d380aaf80b99aa1b9782fa1756",
     "polytime": "cfe659c861fc753a2bb9b2236a67c48b871033f7",
     "polyweather": "37de2857e02ee01cff1a31778699d95448ceb81b",
-    "soundtweaks": "02df7db355d294155e08baa5955f7c5196dbea6e",
     "vanillahud": "b1b1b26b8b2824fffff723537b3ef40c71db9bbf",
     "fabric-api": "c98467cbbaf4d197377266795ae015f4130d65b6",
     "modmenu": "d5612d70bda58e0179b177ca9990e57471e67d19"
@@ -217,8 +212,9 @@ def patch_zip(data, display_name, badge=None):
                 try:
                     meta = json.loads(raw.decode("utf-8"))
                     meta["name"] = display_name
-                    if isinstance(meta.get("description"), str):
-                        meta["description"] = meta["description"].replace("OneClient", "OrangeClient").replace("One Client", "Orange Client")
+                    # Keep Mod Menu entries clean: no description text or icon/PFP.
+                    meta.pop("description", None)
+                    meta.pop("icon", None)
                     custom = meta.get("custom")
                     if not isinstance(custom, dict):
                         custom = {}
@@ -273,29 +269,29 @@ def main():
     version_id = sys.argv[4] if len(sys.argv) > 4 else read_property("mod_version")
     out_dir.mkdir(parents=True, exist_ok=True)
 
-    badge = __import__("base64").b64decode(ORANGE_BADGE_B64)
     files = []
     versions = {}
     print("Resolving and patching requested OrangeClient mods...")
     for slug, (requested, path, display_name) in MODS.items():
-        versions[slug] = add_external(files, out_dir, base_url, slug, requested, path, display_name, badge)
+        versions[slug] = add_external(files, out_dir, base_url, slug, requested, path, display_name, None)
 
     print("Resolving required libraries...")
     for slug, (requested, path, display_name) in LIBS.items():
         versions[slug] = add_external(files, out_dir, base_url, slug, requested, path, display_name)
 
-    # The Orange Client mod itself is the first-party client and is hidden from Mod Menu.
+    # Patch the first-party client too, so it has no Mod Menu description or icon.
     orange_name = "orange-client.jar"
+    orange_patched = patch_zip(jar.read_bytes(), "Orange Client", None)
+    (out_dir / orange_name).write_bytes(orange_patched)
     files.append({
         "path": "mods/orange-client.jar",
-        "hashes": {"sha1": sha1_of(jar)},
+        "hashes": {"sha1": hashlib.sha1(orange_patched).hexdigest()},
         "downloads": [f"{base_url}/{orange_name}"],
-        "fileSize": jar.stat().st_size,
+        "fileSize": len(orange_patched),
         "enabled": True,
         "hidden": True,
         "overrides": {
             "name": "Orange Client",
-            "description": "Orange Client in-game mod with the Orange GUI, HUD editor and community capes.",
             "authors": ["OrangeClient"],
         },
     })
@@ -327,7 +323,6 @@ def main():
         }
     }
     (out_dir / "metadata.json").write_text(json.dumps(metadata, indent=2), encoding="utf-8")
-    (out_dir / orange_name).write_bytes(jar.read_bytes())
     print(f"Wrote {mrpack}, patched mod assets and metadata for Minecraft {MC_VERSION}.")
 
 if __name__ == "__main__":
