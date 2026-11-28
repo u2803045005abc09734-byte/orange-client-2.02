@@ -64,7 +64,7 @@ implements ClientModInitializer {
         VisualModules.initialize(this::config);
         this.hud = new HudRenderer(this::config);
         this.packs = new ModrinthService(mc.field_1697.toPath().resolve("resourcepacks"), configDirectory.resolve("orange-client/cache"));
-        this.menuKey = KeyBindingHelper.registerKeyBinding((class_304)new class_304("key.orange.menu", 344, class_304.class_11900.method_74698((class_2960)class_2960.method_60655((String)"orange", (String)"client"))));
+        this.menuKey = KeyBindingHelper.registerKeyBinding((class_304)new class_304("key.orange.menu", -1, class_304.class_11900.method_74698((class_2960)class_2960.method_60655((String)"orange", (String)"client"))));
         FreelookController.initialize(this::config);
         ClientPlayConnectionEvents.INIT.register((handler, client) -> GuiAccess.connectionStarted());
         ClientPlayConnectionEvents.JOIN.register((handler, sender, client) -> GuiAccess.connectionStarted());
