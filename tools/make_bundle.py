@@ -28,6 +28,7 @@ MODMENU_PARENT = {
 # Exact versions selected from the user's latest uploaded ZIP (Neuer Ordner (3).zip).
 # Only these listed mods are packaged; duplicate Mod Menu file entries are resolved to one JAR.
 MODS = {
+    "oneconfig": ("1.9.5", "mods/orange-config.jar", "OrangeConfig"),
     "polydium": ("1.4.23", "mods/orange-performance.jar", "OrangePerformance"),
     "polyblur": ("2.2.11", "mods/orange-blur.jar", "OrangeBlur"),
     "polycrosshair": ("2.0.11", "mods/orange-crosshair.jar", "OrangeCrosshair"),
@@ -48,11 +49,13 @@ MODS = {
 
 # Additional files that are present in the user's ZIP and required by included mods.
 VERSION_IDS = {
+    "oneconfig": "u0Ap01Nd",
     "chattweaks": "360hYztL",
     "behindyou": "FCeKgRN0",
 }
 
 EXACT_SHA1 = {
+    "oneconfig": "3bc6d441f18d3da217a0e0edae3dff7730fb8cd6",
     "crashpatch": "853366f6a7dd02b0be9e3ad873ac1f068be112f9",
     "behindyouv3": "09ac42a9dbd37d91d0d054e4c3d45ef030772304",
     "chatting": "7e75a2eb2226a2ba1b24cd3e89b7d2f4e161694c",
