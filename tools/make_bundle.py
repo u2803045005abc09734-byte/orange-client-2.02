@@ -256,22 +256,7 @@ def main():
     for slug, (requested, path, display_name) in LIBS.items():
         versions[slug] = add_external(files, out_dir, base_url, slug, requested, path, display_name)
 
-    # Patch the first-party client too, so it has no Mod Menu description or icon.
-    orange_name = "orange-client.jar"
-    orange_patched = patch_zip(jar.read_bytes(), "Orange Client", None)
-    (out_dir / orange_name).write_bytes(orange_patched)
-    files.append({
-        "path": "mods/orange-client.jar",
-        "hashes": {"sha1": hashlib.sha1(orange_patched).hexdigest()},
-        "downloads": [f"{base_url}/{orange_name}"],
-        "fileSize": len(orange_patched),
-        "enabled": True,
-        "hidden": True,
-        "overrides": {
-            "name": "Orange Client",
-            "authors": ["OrangeClient"],
-        },
-    })
+    # The legacy first-party Orange Client mod (old HUD/GUI) is intentionally NOT part of the bundle.
 
     index = {
         "formatVersion": 1,
