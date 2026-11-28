@@ -154,44 +154,6 @@ def modrinth_file(slug, requested):
     print(f"  {slug}: {version['version_number']} ({primary['filename']})")
     return get_bytes(url), version["version_number"]
 
-def patch_class_strings(data):
-    if data[:4] != b"\\xca\\xfe\\xba\\xbe":
-        return data
-    cp_count = struct.unpack_from(">H", data, 8)[0]
-    pos = 10
-    out = bytearray(data[:10])
-    i = 1
-    while i < cp_count:
-        tag = data[pos]
-        out.append(tag)
-        pos += 1
-        if tag == 1:
-            length = struct.unpack_from(">H", data, pos)[0]
-            raw = data[pos + 2:pos + 2 + length]
-            pos += 2 + length
-            new = (raw
-                .replace(b"OneClient", b"OrangeClient")
-                .replace(b"One Client", b"Orange Client")
-                .replace(b"OneConfig", b"OrangeConfig")
-                .replace(b"One Config", b"Orange Config")
-                .replace(b"Polyfrosted Dark", b"Orange Dark")
-                .replace(b"Polyfrosted Light", b"Orange Light")
-                .replace(b"Poly Glass", b"Orange Glass"))
-            out += struct.pack(">H", len(new)) + new
-        else:
-            sizes = {3:4, 4:4, 5:8, 6:8, 7:2, 8:2, 9:4, 10:4,
-                     11:4, 12:4, 15:3, 16:2, 17:4, 18:4, 19:2, 20:2}
-            size = sizes.get(tag)
-            if size is None:
-                return data
-            out += data[pos:pos + size]
-            pos += size
-        if tag in (5, 6):
-            i += 1
-        i += 1
-    out += data[pos:]
-    return bytes(out)
-
 def patch_zip(data, display_name, badge=None):
     source = zipfile.ZipFile(io.BytesIO(data))
     out_io = io.BytesIO()
@@ -207,7 +169,9 @@ def patch_zip(data, display_name, badge=None):
                 except zipfile.BadZipFile:
                     pass
             elif lower.endswith(".class"):
-                raw = patch_class_strings(raw)
+                # Never rewrite JVM constant-pool class names: this can make
+                # Mixin JSON point to a class name that does not exist in the JAR.
+                # Keep the specific OneConfig theme-color patch only.
                 if lower.endswith("org/polyfrost/oneconfig/internal/themeconfig.class"):
                     # OneConfig 1.9.5 defaults to #2B4BFF. OrangeClient defaults to #FF7A00.
                     raw = raw.replace(struct.pack(">i", -13939713), struct.pack(">i", -34304))
@@ -230,7 +194,9 @@ def patch_zip(data, display_name, badge=None):
                     raw = (json.dumps(meta, ensure_ascii=False, indent=2) + "\n").encode("utf-8")
                 except Exception:
                     pass
-            elif lower.endswith((".lang", ".json", ".txt", ".xml", ".svg", ".toml")) and "license" not in lower:
+            elif (lower.endswith((".lang", ".json", ".txt", ".xml", ".svg", ".toml"))
+                  and "license" not in lower and not lower.endswith(".mixins.json")):
+                # Mixin config entries are JVM class identifiers, not UI copy.
                 raw = (raw.replace(b"OneClient", b"OrangeClient")
                        .replace(b"One Client", b"Orange Client")
                        .replace(b"OneConfig", b"OrangeConfig")
