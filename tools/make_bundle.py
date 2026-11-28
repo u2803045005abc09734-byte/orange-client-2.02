@@ -10,6 +10,7 @@ import io
 import json
 import struct
 import sys
+import subprocess
 import urllib.error
 import urllib.parse
 import urllib.request
@@ -89,6 +90,46 @@ LIBS = {
     "notenoughcrashes": (None, "mods/not-enough-crashes.jar", "Not Enough Crashes"),
 }
 
+
+# ---- Orange-style mod icons (own artwork: orange tile + white line glyph) ----
+_G = {
+ "polyblur": '<circle cx="64" cy="64" r="9" fill="#fff" stroke="none"/><circle cx="64" cy="64" r="22" opacity=".7"/><circle cx="64" cy="64" r="35" opacity=".4"/>',
+ "polycrosshair": '<path d="M64 28v22M64 78v22M28 64h22M78 64h22"/><circle cx="64" cy="64" r="5" fill="#fff" stroke="none"/>',
+ "polyhitbox": '<rect x="34" y="42" width="44" height="44" rx="4"/><path d="M50 34h44v44"/>',
+ "polysprint": '<path d="M36 40l24 24-24 24M64 40l24 24-24 24" />',
+ "polytime": '<circle cx="64" cy="64" r="34"/><path d="M64 44v22l15 9"/>',
+ "polyweather": '<path d="M44 86a16 16 0 0 1 2-32 22 22 0 0 1 42 6 14 14 0 0 1-2 26z"/>',
+ "chatting": '<path d="M34 40h60a6 6 0 0 1 6 6v30a6 6 0 0 1-6 6H64L46 98V82h-12a6 6 0 0 1-6-6V46a6 6 0 0 1 6-6z"/>',
+ "chattweaks": '<path d="M34 40h60v42H64L46 98V82H34z"/><path d="M48 56h32M48 68h20"/>',
+ "behindyou": '<path d="M88 52A30 30 0 1 0 94 70"/><path d="M90 34v20H70"/>',
+ "colorsaturation": '<path d="M64 30C50 50 40 60 40 76a24 24 0 0 0 48 0C88 60 78 50 64 30z"/>',
+ "damagetint": '<path d="M64 96S34 78 34 56a15 15 0 0 1 30-5 15 15 0 0 1 30 5c0 22-30 40-30 40z"/>',
+ "crashpatch": '<path d="M64 30l32 12v22c0 18-14 30-32 36-18-6-32-18-32-36V42z"/><path d="M50 64l10 10 18-20"/>',
+ "overflowanimations": '<path d="M28 64c12-24 24-24 36 0s24 24 36 0"/>',
+ "overflowparticles": '<circle cx="46" cy="76" r="6" fill="#fff" stroke="none"/><circle cx="74" cy="52" r="8" fill="#fff" stroke="none"/><circle cx="88" cy="84" r="5" fill="#fff" stroke="none"/><circle cx="58" cy="40" r="4" fill="#fff" stroke="none"/>',
+ "soundtweaks": '<path d="M38 56h14l18-14v44L52 72H38z"/><path d="M82 52c8 8 8 16 0 24"/>',
+ "polydium": '<path d="M70 28L40 70h22l-6 30 32-44H66z"/>',
+ "vanillahud": '<rect x="32" y="40" width="64" height="48" rx="6"/><path d="M44 56h24M44 68h40"/>',
+ "oneconfig": '<circle cx="64" cy="64" r="12"/><path d="M64 28v14M64 86v14M28 64h14M86 64h14M38 38l10 10M80 80l10 10M90 38L80 48M48 80L38 90"/>',
+}
+
+def orange_icon_svg(slug):
+    g = _G.get(slug, '<circle cx="64" cy="64" r="22"/>')
+    return ('<svg width="128" height="128" viewBox="0 0 128 128" fill="none" xmlns="http://www.w3.org/2000/svg">'
+            '<rect x="6" y="6" width="116" height="116" rx="28" fill="#FF7A00"/>'
+            '<g stroke="#fff" stroke-width="7" stroke-linecap="round" stroke-linejoin="round">' + g + '</g></svg>').encode()
+
+def orange_icon_png(slug):
+    try:
+        r = subprocess.run(["rsvg-convert", "-w", "256", "-h", "256", "-f", "png"], input=orange_icon_svg(slug),
+                           capture_output=True, check=True)
+        return r.stdout
+    except Exception as exc:
+        print(f"  (no PNG icon rendered for {slug}: {exc})")
+        return None
+
+MOD_DESCRIPTION = "OrangeClient mod"
+
 def get_json(url):
     print(f"GET JSON: {url}")
     req = urllib.request.Request(url, headers={"User-Agent": USER_AGENT})
@@ -162,7 +203,7 @@ def modrinth_file(slug, requested):
     print(f"  {slug}: {version['version_number']} ({primary['filename']})")
     return get_bytes(url), version["version_number"]
 
-def patch_zip(data, display_name, badge=None):
+def patch_zip(data, display_name, badge=None, slug=None, top=True):
     source = zipfile.ZipFile(io.BytesIO(data))
     out_io = io.BytesIO()
     with zipfile.ZipFile(out_io, "w", zipfile.ZIP_DEFLATED) as out:
@@ -173,7 +214,7 @@ def patch_zip(data, display_name, badge=None):
 
             if lower.endswith(".jar"):
                 try:
-                    raw = patch_zip(raw, display_name, badge)
+                    raw = patch_zip(raw, display_name, badge, slug, False)
                 except zipfile.BadZipFile:
                     pass
             elif lower.endswith(".class"):
@@ -188,7 +229,10 @@ def patch_zip(data, display_name, badge=None):
                     meta = json.loads(raw.decode("utf-8"))
                     meta["name"] = display_name
                     # Keep Mod Menu entries clean: no description text or icon/PFP.
-                    meta.pop("description", None)
+                    if top and slug:
+                        meta["description"] = MOD_DESCRIPTION
+                    else:
+                        meta.pop("description", None)
                     meta.pop("icon", None)
                     custom = meta.get("custom")
                     if not isinstance(custom, dict):
@@ -211,6 +255,20 @@ def patch_zip(data, display_name, badge=None):
                        .replace(b"One Config", b"Orange Config"))
             if badge is not None and lower.endswith("oneconfig-icon.png"):
                 raw = badge
+            if top and slug and slug != "oneconfig":
+                parts = lower.split("/")
+                base = parts[-1]
+                if lower.endswith(".svg") and len(parts) == 3 and parts[0] == "assets" and base != "discord.svg":
+                    stem = base[:-4]
+                    for suf in ("_dark", "_light"):
+                        if stem.endswith(suf):
+                            stem = stem[: -len(suf)]
+                    if stem == "icon" or stem == parts[1] or (len(stem) >= 4 and parts[1].startswith(stem)):
+                        raw = orange_icon_svg(slug)
+                elif base == "icon.png" and len(parts) in (1, 3):
+                    png = orange_icon_png(slug)
+                    if png is not None:
+                        raw = png
 
             out.writestr(info, raw)
     return out_io.getvalue()
@@ -221,9 +279,9 @@ def read_property(name):
             return line.split("=", 1)[1].strip()
     raise SystemExit(f"gradle.properties has no {name}")
 
-def add_external(files, out_dir, base_url, slug, requested, path, display_name, badge=None):
+def add_external(files, out_dir, base_url, slug, requested, path, display_name, badge=None, decorate=True):
     raw, actual = modrinth_file(slug, requested)
-    patched = patch_zip(raw, display_name, badge)
+    patched = patch_zip(raw, display_name, badge, slug if decorate else None)
     filename = Path(path).name
     target = out_dir / filename
     target.write_bytes(patched)
@@ -254,7 +312,7 @@ def main():
 
     print("Resolving required libraries...")
     for slug, (requested, path, display_name) in LIBS.items():
-        versions[slug] = add_external(files, out_dir, base_url, slug, requested, path, display_name)
+        versions[slug] = add_external(files, out_dir, base_url, slug, requested, path, display_name, None, False)
 
     # The legacy first-party Orange Client mod (old HUD/GUI) is intentionally NOT part of the bundle.
 

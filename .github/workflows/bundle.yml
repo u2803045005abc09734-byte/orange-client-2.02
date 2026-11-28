@@ -46,6 +46,9 @@ jobs:
           echo "Using $jar"
           echo "path=$jar" >> "$GITHUB_OUTPUT"
 
+      - name: Install SVG renderer for mod icons
+        run: sudo apt-get update && sudo apt-get install -y librsvg2-bin
+
       - name: Build launcher bundle
         shell: bash
         run: |
